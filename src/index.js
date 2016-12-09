@@ -1,4 +1,4 @@
-import loadRoutes from './routes/load_routes';
+import loadRoutes from './load_routes';
 
 // compile
 const compileConfiguration = (options = {}, bitsConfig) => {

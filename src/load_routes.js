@@ -9,9 +9,9 @@ import {
 const defineHandler = (key, schema) => new SchemaRoute(schema);
 const defineRoute = (verb, route, implementation) => ({ verb, route, implementation });
 
-const defineRoutes = (prefix = '', key, schema) => {
+const defineRoutes = (prefix, key, schema) => {
   const handler = defineHandler(key, schema);
-  const route = `${prefix}/${key}`;
+  const route = `${ prefix ? `/${prefix}` : '' }/${key}`;
 
   return [
     defineRoute(GET, route, handler),
@@ -26,8 +26,11 @@ const defineRoutes = (prefix = '', key, schema) => {
 
 // load route
 export default (config) => {
-  const keys = _.keys(config.schema);
-  const routes = keys.map((key) => defineRoutes(config.prefix, key, config.schema[key]));
+  const routes = config.schema.map((schema) =>
+    _.keys(schema).map((key) => defineRoutes(config.prefix, key, schema[key]))
+  );
 
-  return _.flattenDeep(routes);
+  const test = _.flattenDeep(routes);
+  console.log(test);
+  return test;
 };
