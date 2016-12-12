@@ -30,7 +30,5 @@ export default (config) => {
     _.keys(schema).map((key) => defineRoutes(config.prefix, key, schema[key]))
   );
 
-  const test = _.flattenDeep(routes);
-  console.log(test);
-  return test;
+  return _.flattenDeep(routes);
 };
