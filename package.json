@@ -1,6 +1,6 @@
 {
   "name": "node-bits-rest",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Provides an logic to expose a rest service for all schema objects",
   "main": "lib/index.js",
   "scripts": {
@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/jgretz/node-bits-rest#readme",
   "dependencies": {
-    "lodash": "^4.17.2"
+    "lodash": "^4.17.2",
+    "promise": "^7.1.1"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",

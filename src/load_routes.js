@@ -6,11 +6,11 @@ import {
 } from './util/constants';
 
 // helpers
-const defineHandler = (key, schema) => new SchemaRoute(schema);
+const defineHandler = (key, schema, database) => new SchemaRoute(key, schema, database);
 const defineRoute = (verb, route, implementation) => ({ verb, route, implementation });
 
-const defineRoutes = (prefix, key, schema) => {
-  const handler = defineHandler(key, schema);
+const defineRoutes = (prefix, key, schema, database) => {
+  const handler = defineHandler(key, schema, database);
   const route = `${ prefix ? `/${prefix}` : '' }/${key}`;
 
   return [
@@ -27,7 +27,7 @@ const defineRoutes = (prefix, key, schema) => {
 // load route
 export default (config) => {
   const routes = config.schema.map((schema) =>
-    _.keys(schema).map((key) => defineRoutes(config.prefix, key, schema[key]))
+    _.keys(schema).map((key) => defineRoutes(config.prefix, key, schema[key], config.database))
   );
 
   return _.flattenDeep(routes);
