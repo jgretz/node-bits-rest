@@ -66,8 +66,6 @@ export default class SchemaRoute {
       return;
     }
 
-    console.log(req.body);
-
     this.respond(
       this.database.create(this.name, req.body), res
     );
