@@ -7,6 +7,7 @@ import {
 
 export default class SchemaRoute {
   constructor(name, database, subscribers) {
+    this.name = name;
     this.subscribers = subscribers;
 
     this.logic = {
@@ -23,8 +24,8 @@ export default class SchemaRoute {
         return result;
       }
 
-      return sub.perform({ verb, stage, req, res, ...args });
-    });
+      return sub.perform({ name: this.name, verb, stage, req, res, ...args });
+    }, false);
   }
 
   respond(verb, req, res) {

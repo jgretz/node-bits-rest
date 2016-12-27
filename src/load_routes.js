@@ -8,18 +8,12 @@ import {
 // helpers
 const defineHandler = (key, database, subscribers) => new SchemaRoute(key, database, subscribers);
 const defineRoute = (verb, route, implementation) => ({ verb, route, implementation });
+const defineSubscribers = (subscribers, key) =>
+  _.filter(subscribers, s => s.subscribe && s.subscribe(key));
 
-const findSubscribers = (routes, key) => {
-  const candidateRoutes = _.filter(routes, r => r.implementation.subscribe);
-  const subscribedRoutes = _.filter(candidateRoutes,
-    r => r.implementation.subscribe().includes(key));
-
-  return subscribedRoutes.map(r => r.implementation);
-};
-
-const defineRoutes = (routes, prefix, key, schema, database) => {
-  const subscribers = findSubscribers(routes, key);
-  const handler = defineHandler(key, database, subscribers);
+const defineRoutes = (prefix, key, schema, database, subscribers) => {
+  const applicableSubscribers = defineSubscribers(subscribers, key);
+  const handler = defineHandler(key, database, applicableSubscribers);
   const route = `${ prefix ? `/${prefix}` : '' }/${key}`;
 
   return [
@@ -37,9 +31,11 @@ const defineRoutes = (routes, prefix, key, schema, database) => {
 
 // load route
 export default (config) => {
+  const subscribers = (config.subscribers || []).map(s => s.implementation);
+
   const routes = config.schema.map((schema) =>
     _.keys(schema).map((key) =>
-      defineRoutes(config.routes, config.prefix, key, schema[key], config.database))
+      defineRoutes(config.prefix, key, schema[key], config.database, subscribers))
   );
 
   return _.flattenDeep(routes);
