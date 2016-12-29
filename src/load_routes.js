@@ -1,9 +1,6 @@
 import _ from 'lodash';
 import SchemaRoute from './schema_route';
-
-import {
-  GET, PUT, POST, DELETE
-} from './util/constants';
+import { GET, PUT, POST, DELETE } from 'node-bits';
 
 // helpers
 const defineHandler = (key, database, subscribers) => new SchemaRoute(key, database, subscribers);

@@ -1,9 +1,6 @@
 import _ from 'lodash';
 import { get, post, put, restDelete } from './schema';
-import {
-  GET, POST, PUT, DELETE,
-  BEFORE, AFTER
-} from './util/constants';
+import { GET, POST, PUT, DELETE, BEFORE, AFTER } from 'node-bits';
 
 export default class SchemaRoute {
   constructor(name, database, subscribers) {
