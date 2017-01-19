@@ -30,7 +30,7 @@ const defineRoutes = (prefix, key, schema, database, subscribers) => {
 export default (config) => {
   const subscribers = (config.subscribers || []).map(s => s.implementation);
 
-  const routes = config.schema.map((schema) =>
+  const routes = config.schema.map(({ schema }) =>
     _.keys(schema).map((key) =>
       defineRoutes(config.prefix, key, schema[key], config.database, subscribers))
   );
