@@ -1,7 +1,7 @@
 {
   "name": "node-bits-rest",
-  "version": "0.0.8",
-  "description": "Provides an logic to expose a rest service for all schema objects",
+  "version": "0.0.9",
+  "description": "Provides a rest api for all schema objects",
   "main": "lib/index.js",
   "scripts": {
     "start": "nodemon src/index.js --exec babel-node",
