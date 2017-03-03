@@ -1,6 +1,7 @@
 import _ from 'lodash';
-import { get, post, put, restDelete } from './schema';
-import { GET, POST, PUT, DELETE, BEFORE, AFTER } from 'node-bits';
+import {GET, POST, PUT, DELETE, BEFORE, AFTER, logError} from 'node-bits';
+
+import {get, post, put, restDelete} from './schema';
 
 export default class SchemaRoute {
   constructor(name, database, subscribers) {
@@ -21,7 +22,7 @@ export default class SchemaRoute {
         return result;
       }
 
-      return sub.perform({ name: this.name, verb, stage, req, res, ...args });
+      return sub.perform({name: this.name, verb, stage, req, res, ...args});
     }, false);
   }
 
@@ -31,20 +32,19 @@ export default class SchemaRoute {
       return;
     }
 
-    this.logic[verb](req, res)
-      .then((data) => {
-        handled = this.notifySubscribers(verb, AFTER, req, res, { data });
-        if (handled) {
-          return;
-        }
+    this.logic[verb](req, res).then(data => {
+      handled = this.notifySubscribers(verb, AFTER, req, res, {data});
+      if (handled) {
+        return;
+      }
 
-        res.json(data);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send(err);
-      });
-  };
+      res.json(data);
+    })
+    .catch(err => {
+      logError(err);
+      res.status(500).send(err);
+    });
+  }
 
   // REST
   get(req, res) {

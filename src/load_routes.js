@@ -1,17 +1,17 @@
 import _ from 'lodash';
 import SchemaRoute from './schema_route';
-import { GET, PUT, POST, DELETE } from 'node-bits';
+import {GET, PUT, POST, DELETE} from 'node-bits';
 
 // helpers
 const defineHandler = (key, database, subscribers) => new SchemaRoute(key, database, subscribers);
-const defineRoute = (verb, route, implementation) => ({ verb, route, implementation });
+const defineRoute = (verb, route, implementation) => ({verb, route, implementation});
 const defineSubscribers = (subscribers, key) =>
   _.filter(subscribers, s => s.subscribe && s.subscribe(key));
 
 const defineRoutes = (prefix, key, schema, database, subscribers) => {
   const applicableSubscribers = defineSubscribers(subscribers, key);
   const handler = defineHandler(key, database, applicableSubscribers);
-  const route = `${ prefix ? `/${prefix}` : '' }/${key}`;
+  const route = `${prefix ? `/${prefix}` : ''}/${key}`;
 
   return [
     defineRoute(GET, route, handler),
@@ -25,13 +25,12 @@ const defineRoutes = (prefix, key, schema, database, subscribers) => {
   ];
 };
 
-
 // load route
-export default (config) => {
+export default config => {
   const subscribers = (config.subscribers || []).map(s => s.implementation);
 
-  const routes = config.schema.map(({ schema }) =>
-    _.keys(schema).map((key) =>
+  const routes = config.schema.map(({schema}) =>
+    _.keys(schema).map(key =>
       defineRoutes(config.prefix, key, schema[key], config.database, subscribers))
   );
 
