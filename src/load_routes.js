@@ -28,10 +28,8 @@ const defineRoutes = (prefix, key, schema, database, subscribers) => {
 // load route
 export default config => {
   const subscribers = (config.subscribers || []).map(s => s.implementation);
-
-  const routes = config.schema.map(({schema}) =>
-    _.keys(schema).map(key =>
-      defineRoutes(config.prefix, key, schema[key], config.database, subscribers))
+  const routes = _.keys(config.database.models).map(key =>
+    defineRoutes(config.prefix, key, config.database.models[key], config.database, subscribers)
   );
 
   return _.flattenDeep(routes);
