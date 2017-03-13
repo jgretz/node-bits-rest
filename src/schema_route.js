@@ -4,12 +4,13 @@ import {GET, POST, PUT, DELETE, BEFORE, AFTER, logError} from 'node-bits';
 import {get, post, put, restDelete} from './schema';
 
 export default class SchemaRoute {
-  constructor(name, database, subscribers) {
+  constructor(name, database, subscribers, odataConfig) {
     this.name = name;
     this.subscribers = subscribers;
+    this.odataConfig = odataConfig;
 
     this.logic = {
-      get: get(name, database),
+      get: get(name, database, odataConfig),
       post: post(name, database),
       put: put(name, database),
       delete: restDelete(name, database),

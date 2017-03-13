@@ -3,14 +3,14 @@ import SchemaRoute from './schema_route';
 import {GET, PUT, POST, DELETE} from 'node-bits';
 
 // helpers
-const defineHandler = (key, database, subscribers) => new SchemaRoute(key, database, subscribers);
+const defineHandler = (key, database, subscribers, odataConfig) => new SchemaRoute(key, database, subscribers, odataConfig);
 const defineRoute = (verb, route, implementation) => ({verb, route, implementation});
 const defineSubscribers = (subscribers, key) =>
   _.filter(subscribers, s => s.subscribe && s.subscribe(key));
 
-const defineRoutes = (prefix, key, database, subscribers) => {
+const defineRoutes = (prefix, key, database, subscribers, odataConfig = {enabled: false}) => {
   const applicableSubscribers = defineSubscribers(subscribers, key);
-  const handler = defineHandler(key, database, applicableSubscribers);
+  const handler = defineHandler(key, database, applicableSubscribers, odataConfig);
   const route = `${prefix ? `/${prefix}` : ''}/${key}`;
 
   return [
@@ -29,7 +29,7 @@ const defineRoutes = (prefix, key, database, subscribers) => {
 export default config => {
   const subscribers = (config.subscribers || []).map(s => s.implementation);
   const routes = _.keys(config.database.models).map(key =>
-    defineRoutes(config.prefix, key, config.database, subscribers)
+    defineRoutes(config.prefix, key, config.database, subscribers, config.odata)
   );
 
   return _.flattenDeep(routes);
