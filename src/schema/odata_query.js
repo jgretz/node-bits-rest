@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import odata from 'odata-parser';
 import url from 'url';
+import {COUNT} from 'node-bits';
 
 const ODATA_FLAG = '$';
 
@@ -79,7 +80,7 @@ export const queryForOData = req => {
   const oDataQuery = odata.parse(urlQuery);
 
   return {
-    includeMetaData: true,
+    includeMetaData: [{key: '@odata.count', value: COUNT}],
 
     start: oDataQuery.$skip || 0,
     max: oDataQuery.$top || undefined, // eslint-disable-line
