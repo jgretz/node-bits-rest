@@ -7,6 +7,7 @@ export default class SchemaRoute {
   constructor(name, database, subscribers) {
     this.name = name;
     this.subscribers = subscribers;
+    this.database = database;
 
     this.logic = {
       get: get(name, database),
@@ -21,19 +22,18 @@ export default class SchemaRoute {
       if (result || !sub.perform) {
         return result;
       }
-
       return sub.perform({name: this.name, verb, stage, req, res, ...args});
     }, false);
   }
 
   respond(verb, req, res) {
-    let handled = this.notifySubscribers(verb, BEFORE, req, res);
+    let handled = this.notifySubscribers(verb, BEFORE, req, res, {database: this.database});
     if (handled) {
       return;
     }
 
     this.logic[verb](req, res).then(data => {
-      handled = this.notifySubscribers(verb, AFTER, req, res, {data});
+      handled = this.notifySubscribers(verb, AFTER, req, res, {data, database: this.database});
       if (handled) {
         return;
       }
