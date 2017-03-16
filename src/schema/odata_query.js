@@ -9,7 +9,7 @@ const ODATA_FLAG = '$';
 
 // helpers
 const oDataFuncMap = {
-  contains: node => ({[parseNode(node.args[0])]: {like: parseNode(node.args[1])}}),
+  substringof: node => ({[parseNode(node.args[0])]: {like: parseNode(node.args[1])}}), // this maps to contains
   startswith: node => ({[parseNode(node.args[0])]: {startsWith: parseNode(node.args[1])}}),
   endswith: node => ({[parseNode(node.args[0])]: {endsWith: parseNode(node.args[1])}}),
 };
@@ -31,7 +31,7 @@ const oDataTypeMap = {
 const parseFunctionCall = root => {
   const map = oDataFuncMap[root.func];
   if (!map) {
-    throw new Error(`Unsupported function call - ${root.args[1]}`);
+    throw new Error(`Unsupported function call - ${root.func}`);
   }
 
   return map(root);
@@ -72,13 +72,15 @@ const buildOrderByClause = oDataOrderBy => {
 export const testForOData = req => _.some(req.query, (value, key) => key.startsWith(ODATA_FLAG));
 
 export const queryForOData = req => {
-  const urlQuery = decodeURI(url.parse(req.url).query).replace(/\+/g, ' ');
+  // handle 4.0 replacement of substring with contains,
+  // the node-odata-parser doesnt currently work for this
+  const urlQuery = decodeURI(url.parse(req.url).query)
+    .replace(/\+/g, ' ').replace('contains', 'substringof');
   if (!urlQuery) {
     return {};
   }
 
   const oDataQuery = odata.parse(urlQuery);
-
   return {
     includeMetaData: [{key: '@odata.count', value: COUNT}],
 
