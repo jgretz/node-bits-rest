@@ -75,7 +75,7 @@ export const queryForOData = req => {
   // handle 4.0 replacement of substring with contains,
   // the node-odata-parser doesnt currently work for this
   const urlQuery = decodeURI(url.parse(req.url).query)
-    .replace(/\+/g, ' ').replace('contains', 'substringof');
+    .replace(/\+/g, ' ').replace(/contains/g, 'substringof');
   if (!urlQuery) {
     return {};
   }
