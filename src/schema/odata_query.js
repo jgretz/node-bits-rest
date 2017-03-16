@@ -9,7 +9,7 @@ const ODATA_FLAG = '$';
 
 // helpers
 const oDataFuncMap = {
-  substringof: node => ({[parseNode(node.args[0])]: {like: parseNode(node.args[1])}}),
+  contains: node => ({[parseNode(node.args[0])]: {like: parseNode(node.args[1])}}),
   startswith: node => ({[parseNode(node.args[0])]: {startsWith: parseNode(node.args[1])}}),
   endswith: node => ({[parseNode(node.args[0])]: {endsWith: parseNode(node.args[1])}}),
 };

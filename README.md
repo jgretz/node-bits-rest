@@ -55,7 +55,7 @@ The simple query syntax supports select, orderby, start, max, and filters. Here 
 #### OData
 node-bits-rest supports select, orderby, top, skip, and filter from the OData standard. You can read more about this standard on the [OData Documentation page](http://www.odata.org/documentation/).
 
-For filter, node-bits-rest supports the following operators: eq, ne, gt, ge, lt, le, and, or. In addition, it supports the substringof, startswith, and endswith functions for filtering.
+For filter, node-bits-rest supports the following operators: eq, ne, gt, ge, lt, le, and, or. In addition, it supports the contains, startswith, and endswith functions for filtering.
 
 node-bits-rest will return all queries that use OData in the format ```{value: [<rows>], @odata.count: <total row count for where clause>}```
 
