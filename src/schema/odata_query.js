@@ -1,11 +1,12 @@
 /* eslint-disable no-use-before-define */
-
 import _ from 'lodash';
 import odata from 'odata-parser';
 import url from 'url';
+import util from 'util';
 import {COUNT} from 'node-bits';
 
 const ODATA_FLAG = '$';
+const ESCAPE_AND_HOPE_WE_NEVER_SEE = 'JaQzEpW';
 
 // helpers
 const oDataFuncMap = {
@@ -68,19 +69,87 @@ const buildOrderByClause = oDataOrderBy => {
   });
 };
 
+const hackQueryString = urlstring => {
+  let querystring = decodeURI(url.parse(urlstring).query);
+
+  // replace + with spaces
+  querystring = querystring.replace(/\+/g, ' ');
+
+  // handle 4.0 replacement of substring with contains, the node-odata-parser doesnt currently work for this
+  querystring = querystring.replace(/contains/g, 'substringof');
+
+  // handle support of . and / for traversing the stack
+  querystring = querystring.replace(/\./g, ESCAPE_AND_HOPE_WE_NEVER_SEE);
+  querystring = querystring.replace(/\//g, ESCAPE_AND_HOPE_WE_NEVER_SEE);
+
+  return {
+    string: querystring,
+  };
+};
+
+
+const escapeString = string => string.replace(new RegExp(ESCAPE_AND_HOPE_WE_NEVER_SEE, 'g'), '.');
+
+const replacePeriodEscape = node => {
+  if (!node) {
+    return;
+  }
+
+  // if its an array, we need to evaluate each child
+  if (_.isArray(node)) {
+    _.forEach(node, (child, index) => {
+      if (_.isString(child)) {
+        node.splice(index, 1, escapeString(child));
+        return;
+      }
+
+      if (_.isObject(child)) {
+        replacePeriodEscape(child);
+      }
+    });
+
+    return;
+  }
+
+  // object, evaluate each key
+  if (_.isObject(node)) {
+    _.forOwn(node, (value, key) => {
+      let newKey = key;
+      if (key.includes(ESCAPE_AND_HOPE_WE_NEVER_SEE)) {
+        delete node[key];
+        newKey = key.replace(new RegExp(ESCAPE_AND_HOPE_WE_NEVER_SEE, 'g'), '.');
+      }
+
+      if (_.isString(value)) {
+        node[newKey] = escapeString(value);
+      } else {
+        node[newKey] = value;
+        replacePeriodEscape(value);
+      }
+    });
+  }
+};
+
+const unhackQueryString = (query, oDataQuery) => {
+  replacePeriodEscape(oDataQuery.$select);
+  replacePeriodEscape(oDataQuery.$orderby);
+  replacePeriodEscape(oDataQuery.$filter);
+
+  return oDataQuery;
+};
+
 // exports
 export const testForOData = req => _.some(req.query, (value, key) => key.startsWith(ODATA_FLAG));
 
 export const queryForOData = req => {
-  // handle 4.0 replacement of substring with contains,
-  // the node-odata-parser doesnt currently work for this
-  const urlQuery = decodeURI(url.parse(req.url).query)
-    .replace(/\+/g, ' ').replace(/contains/g, 'substringof');
-  if (!urlQuery) {
+  const query = hackQueryString(req.url);
+  if (!query) {
     return {};
   }
 
-  const oDataQuery = odata.parse(urlQuery);
+  const rawODataQuery = odata.parse(query.string);
+  const oDataQuery = unhackQueryString(query, rawODataQuery);
+
   return {
     includeMetaData: [{key: '@odata.count', value: COUNT}],
 
