@@ -2,7 +2,6 @@
 import _ from 'lodash';
 import odata from 'odata-parser';
 import url from 'url';
-import util from 'util';
 import {COUNT} from 'node-bits';
 
 const ODATA_FLAG = '$';
