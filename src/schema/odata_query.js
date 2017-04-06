@@ -157,5 +157,6 @@ export const queryForOData = req => {
     select: oDataQuery.$select || undefined, // eslint-disable-line
     orderby: buildOrderByClause(oDataQuery.$orderby),
     where: buildWhereClause(oDataQuery.$filter),
+    expand: oDataQuery.$expand,
   };
 };

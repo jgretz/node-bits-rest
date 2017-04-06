@@ -44,16 +44,17 @@ node-bits-rest exposes the ability to control the results via parameters passed 
 * note on using select - right now only the fields of the root model are supported. If you want to include a 1:M object use the id, if you want to include a M:1 object use the collection name.
 
 #### Simple
-The simple query syntax supports select, orderby, start, max, and filters. Here is a brief description each:
+The simple query syntax supports select, expand, orderby, start, max, and filters. Here is a brief description each:
 
 * select: a comma delimited list of field names to include in the results
+* expand: a comma delimited of related entities to include in the results
 * orderby: a comma delimited list of field name to sort by. To specify the direction use the following format: ```name:dir```, for example: ```price:desc```
 * start: the index of the result set to start from
 * max: the number of records to return in the results
 * filter: any entry in the querystring that is not one of the other key words is treated as part of the where clause. the simple syntax only supports equality. the syntax is ```name=value```, for example: ```price=5.00```
 
 #### OData
-node-bits-rest supports select, orderby, top, skip, and filter from the OData standard. You can read more about this standard on the [OData Documentation page](http://www.odata.org/documentation/).
+node-bits-rest supports select, expand, orderby, top, skip, and filter from the OData standard. You can read more about this standard on the [OData Documentation page](http://www.odata.org/documentation/).
 
 For filter, node-bits-rest supports the following operators: eq, ne, gt, ge, lt, le, and, or. In addition, it supports the contains, startswith, and endswith functions for filtering.
 
