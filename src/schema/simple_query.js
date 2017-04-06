@@ -17,7 +17,7 @@ const buildOrderByClause = orderBy => {
 };
 
 export const queryForSimple = req => {
-  const where = _.omit(req.query, 'start', 'max', 'select', 'orderby');
+  const where = _.omit(req.query, 'start', 'max', 'select', 'orderby', 'expand');
 
   return {
     start: req.query.start || 0,
@@ -25,5 +25,6 @@ export const queryForSimple = req => {
     select: req.query.select ? req.query.select.split(',') : undefined, // eslint-disable-line
     orderby: buildOrderByClause(req.query.orderby),
     where,
+    expand: req.query.expand,
   };
 };
