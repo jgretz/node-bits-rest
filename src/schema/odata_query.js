@@ -133,6 +133,7 @@ const unhackQueryString = (query, oDataQuery) => {
   replacePeriodEscape(oDataQuery.$select);
   replacePeriodEscape(oDataQuery.$orderby);
   replacePeriodEscape(oDataQuery.$filter);
+  replacePeriodEscape(oDataQuery.$expand);
 
   return oDataQuery;
 };
