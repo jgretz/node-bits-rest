@@ -147,7 +147,7 @@ export const queryForOData = req => {
     return {};
   }
 
-  const rawODataQuery = odata.parse(query.string);
+  const rawODataQuery = odata.parse(unescape(query.string));
   const oDataQuery = unhackQueryString(query, rawODataQuery);
 
   return {
