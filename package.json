@@ -1,6 +1,6 @@
 {
   "name": "node-bits-rest",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Provides a rest api for all schema objects",
   "main": "lib/index.js",
   "scripts": {
