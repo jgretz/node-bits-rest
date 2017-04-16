@@ -6,7 +6,7 @@ export const restDelete = (name, database) =>
     const id = findId(req);
     if (!id) {
       idRequired(res);
-      return null;
+      throw new Error('No id provided');
     }
 
     return database.delete(name, id);
