@@ -8,19 +8,19 @@ const ODATA_FLAG = '$';
 const ESCAPE_AND_HOPE_WE_NEVER_SEE = 'JaQzEpW';
 
 // helpers
-const buildFuncCompare = (left, comparator) => {
+const buildColumnFuncCompare = (left, comparator) => {
   if (left.type && left.type === 'functioncall') {
     const map = oDataFuncMap[left.func];
-    return {leftFunc: map(left), compare: comparator};
+    return {columnFunc: map(left), compare: comparator};
   } else {
     return {[parseNode(left)]: comparator};
   }
 };
 
 const oDataFuncMap = {
-  substringof: node => buildFuncCompare(node.args[0], {like: parseNode(node.args[1])}), // this maps to contains
-  startswith: node => ({[parseNode(node.args[0])]: {startsWith: parseNode(node.args[1])}}),
-  endswith: node => ({[parseNode(node.args[0])]: {endsWith: parseNode(node.args[1])}}),
+  substringof: node => buildColumnFuncCompare(node.args[0], {like: parseNode(node.args[1])}), // this maps to contains
+  startswith: node => buildColumnFuncCompare(node.args[0], {startsWith: parseNode(node.args[1])}),
+  endswith: node => buildColumnFuncCompare(node.args[0], {endsWith: parseNode(node.args[1])}),
   tolower: node => ({func: 'tolower', args: node.args}),
 };
 
@@ -47,17 +47,17 @@ const parseFunctionCall = root => {
   return map(root);
 };
 
-const parseLeftFunctionCall = root => {
+const parseColumnFunction = root => {
   const map = oDataFuncMap[root.left.func];
   if (!map) {
     throw new Error(`Unsupported function call - ${root.left.func}`);
   }
 
-  return {leftFunc: map(root.left), compare: {[root.type]: parseNode(root.right)}};
+  return {columnFunc: map(root.left), compare: {[root.type]: parseNode(root.right)}};
 };
 
 const parseNode = root => {
-  const map = root.left && root.left.type === 'functioncall' ? parseLeftFunctionCall : oDataTypeMap[root.type];
+  const map = root.left && root.left.type === 'functioncall' ? parseColumnFunction : oDataTypeMap[root.type];
   if (!map) {
     throw new Error(`Unsupported node type - ${root.type}`);
   }
