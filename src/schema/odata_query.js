@@ -24,6 +24,10 @@ const oDataFuncMap = {
   tolower: node => ({func: 'tolower', args: node.args}),
 };
 
+const removeInner = value => {
+  return value.$col ? value.$col : value;
+};
+
 const oDataTypeMap = {
   eq: node => ({[parseNode(node.left)]: parseNode(node.right)}),
   ne: node => ({[parseNode(node.left)]: {ne: parseNode(node.right)}}),
@@ -31,8 +35,8 @@ const oDataTypeMap = {
   ge: node => ({[parseNode(node.left)]: {ge: parseNode(node.right)}}),
   lt: node => ({[parseNode(node.left)]: {lt: parseNode(node.right)}}),
   le: node => ({[parseNode(node.left)]: {le: parseNode(node.right)}}),
-  and: node => ({and: [parseNode(node.left), parseNode(node.right)]}),
-  or: node => ({or: [parseNode(node.left), parseNode(node.right)]}),
+  and: node => ({and: [removeInner(parseNode(node.left)), removeInner(parseNode(node.right))]}),
+  or: node => ({or: [removeInner(parseNode(node.left)), removeInner(parseNode(node.right))]}),
   functioncall: node => parseFunctionCall(node),
   property: node => node.name,
   literal: node => node.value,
