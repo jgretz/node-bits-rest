@@ -25,6 +25,6 @@ export const queryForSimple = req => {
     select: req.query.select ? req.query.select.split(',') : undefined, // eslint-disable-line
     orderby: buildOrderByClause(req.query.orderby),
     where,
-    expand: req.query.expand,
+    expand: req.query.expand ? req.query.expand.split(',') : undefined, // eslint-disable-line
   };
 };

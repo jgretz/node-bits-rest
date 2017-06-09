@@ -12,9 +12,9 @@ const buildColumnFuncCompare = (left, comparator) => {
   if (left.type && left.type === 'functioncall') {
     const map = oDataFuncMap[left.func];
     return {columnFunc: map(left), compare: comparator};
-  } else {
-    return {[parseNode(left)]: comparator};
   }
+  return {[parseNode(left)]: comparator};
+
 };
 
 const oDataFuncMap = {
@@ -168,6 +168,8 @@ export const queryForOData = req => {
 
   const rawODataQuery = odata.parse(unescape(query.string));
   const oDataQuery = unhackQueryString(query, rawODataQuery);
+
+  console.log(oDataQuery.expand);
 
   return {
     includeMetaData: [{key: '@odata.count', value: COUNT}],
