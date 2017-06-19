@@ -32,7 +32,7 @@ export default class SchemaRoute {
       return;
     }
 
-    this.logic[verb](req, res).then(data => {
+    this.logic[verb.toLowerCase()](req, res).then(data => {
       handled = this.notifySubscribers(verb, AFTER, req, res, {data, database: this.database});
       if (handled) {
         return;
