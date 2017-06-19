@@ -32,18 +32,19 @@ export default class SchemaRoute {
       return;
     }
 
-    this.logic[verb.toLowerCase()](req, res).then(data => {
-      handled = this.notifySubscribers(verb, AFTER, req, res, {data, database: this.database});
-      if (handled) {
-        return;
-      }
+    this.logic[verb.toLowerCase()](req, res)
+      .then(data => {
+        handled = this.notifySubscribers(verb, AFTER, req, res, {data, database: this.database});
+        if (handled) {
+          return;
+        }
 
-      res.json(data);
-    })
-    .catch(err => {
-      logError(err);
-      res.status(500).send(err);
-    });
+        res.json(data);
+      })
+      .catch(err => {
+        logError(err);
+        res.status(500).send(err);
+      });
   }
 
   // REST

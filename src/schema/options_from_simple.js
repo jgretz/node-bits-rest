@@ -16,7 +16,7 @@ const buildOrderByClause = orderBy => {
   });
 };
 
-export const queryForSimple = req => {
+export const optionsFromSimple = req => {
   const where = _.omit(req.query, 'start', 'max', 'select', 'orderby', 'expand');
 
   return {

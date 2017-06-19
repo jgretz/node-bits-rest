@@ -160,7 +160,7 @@ const unhackQueryString = (query, oDataQuery) => {
 // exports
 export const testForOData = req => _.some(req.query, (value, key) => key.startsWith(ODATA_FLAG));
 
-export const queryForOData = req => {
+export const optionsFromOData = req => {
   const query = hackQueryString(req.url);
   if (!query) {
     return {};
@@ -168,8 +168,6 @@ export const queryForOData = req => {
 
   const rawODataQuery = odata.parse(unescape(query.string));
   const oDataQuery = unhackQueryString(query, rawODataQuery);
-
-  console.log(oDataQuery.expand);
 
   return {
     includeMetaData: [{key: '@odata.count', value: COUNT}],
