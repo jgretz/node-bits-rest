@@ -54,7 +54,7 @@ export default class SchemaRoute {
 
   post(req, res) {
     // allow this to happen (you can't put files so we have to support it)
-    if (req.params.id) {
+    if (req.params.id || req.body.id) {
       this.respond(PUT, req, res);
       return;
     }
