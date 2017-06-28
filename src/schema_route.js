@@ -4,10 +4,11 @@ import {GET, POST, PUT, DELETE, BEFORE, AFTER, logError} from 'node-bits';
 import {get, post, put, restDelete} from './schema';
 
 export default class SchemaRoute {
-  constructor(name, database, subscribers) {
+  constructor(name, database, schema, subscribers) {
     this.name = name;
-    this.subscribers = subscribers;
     this.database = database;
+    this.schema = schema;
+    this.subscribers = subscribers;
 
     this.logic = {
       get: get(name, database),
@@ -22,19 +23,28 @@ export default class SchemaRoute {
       if (result || !sub.perform) {
         return result;
       }
-      return sub.perform({name: this.name, verb, stage, req, res, ...args});
+
+      return sub.perform({
+        database: this.database,
+        name: this.name,
+        schema: this.schema,
+        verb, stage,
+        req,
+        res,
+        ...args,
+      });
     }, false);
   }
 
   respond(verb, req, res) {
-    let handled = this.notifySubscribers(verb, BEFORE, req, res, {database: this.database});
+    let handled = this.notifySubscribers(verb, BEFORE, req, res);
     if (handled) {
       return;
     }
 
     this.logic[verb.toLowerCase()](req, res)
       .then(data => {
-        handled = this.notifySubscribers(verb, AFTER, req, res, {data, database: this.database});
+        handled = this.notifySubscribers(verb, AFTER, req, res, {data});
         if (handled) {
           return;
         }
