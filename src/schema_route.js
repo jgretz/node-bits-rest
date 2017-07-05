@@ -19,38 +19,38 @@ export default class SchemaRoute {
   }
 
   notifySubscribers(verb, stage, req, res, args) {
-    return _.reduce(this.subscribers, (result, sub) => {
-      if (result || !sub.perform) {
-        return result;
-      }
+    const params = {
+      database: this.database,
+      name: this.name,
+      schema: this.schema,
+      verb,
+      stage,
+      req,
+      res,
+      ...args,
+    };
 
-      return sub.perform({
-        database: this.database,
-        name: this.name,
-        schema: this.schema,
-        verb, stage,
-        req,
-        res,
-        ...args,
+    return Promise.all(this.subscribers.map(sub => {
+      const result = sub.perform(params);
+      return result && result.then ? result : Promise.resolve(); // this allows the caller to not return a promise if its not needed
+    }));
+  }
+
+  execute(verb, req, res) {
+    return this.logic[verb.toLowerCase()](req, res);
+  }
+
+  returnResult(data, verb, req, res) {
+    return this.notifySubscribers(verb, AFTER, req, res, {data})
+      .then(() => {
+        res.json(data);
       });
-    }, false);
   }
 
   respond(verb, req, res) {
-    let handled = this.notifySubscribers(verb, BEFORE, req, res);
-    if (handled) {
-      return;
-    }
-
-    this.logic[verb.toLowerCase()](req, res)
-      .then(data => {
-        handled = this.notifySubscribers(verb, AFTER, req, res, {data});
-        if (handled) {
-          return;
-        }
-
-        res.json(data);
-      })
+    this.notifySubscribers(verb, BEFORE, req, res)
+      .then(() => this.execute(verb, req, res))
+      .then(data => this.returnResult(data, verb, req, res))
       .catch(err => {
         logError(err);
         res.status(500).send(err);
