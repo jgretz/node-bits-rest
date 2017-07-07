@@ -1,6 +1,6 @@
 {
   "name": "node-bits-rest",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "description": "Provides a rest api for all schema objects",
   "main": "lib/index.js",
   "scripts": {
@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/jgretz/node-bits-rest#readme",
   "dependencies": {
+    "class-autobind": "^0.1.4",
     "lodash": "^4.17.4",
     "node-bits": "^0.0.26",
     "odata-parser": "^1.4.1",

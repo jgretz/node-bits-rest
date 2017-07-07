@@ -1,10 +1,17 @@
-import _ from 'lodash';
-import {GET, POST, PUT, DELETE, BEFORE, AFTER, logError} from 'node-bits';
+import autobind from 'class-autobind';
+import {
+  GET, POST, PUT, DELETE, BEFORE, AFTER,
+  logError, executeSeries,
+} from 'node-bits';
 
 import {get, post, put, restDelete} from './schema';
 
+const isPromise = obj => !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function'; // eslint-disable-line
+
 export default class SchemaRoute {
   constructor(name, database, schema, subscribers) {
+    autobind(this);
+
     this.name = name;
     this.database = database;
     this.schema = schema;
@@ -18,42 +25,82 @@ export default class SchemaRoute {
     };
   }
 
-  notifySubscribers(verb, stage, req, res, args) {
-    const params = {
+  buildParams(verb, req, res) {
+    return {
       database: this.database,
       name: this.name,
       schema: this.schema,
-      verb,
-      stage,
-      req,
-      res,
-      ...args,
+
+      execute: () => this.logic[verb.toLowerCase()](req, res),
+
+      verb, req, res,
+
+      stage: BEFORE,
+
+      resultSent: false,
+      failure: false,
+      data: null,
     };
+  }
 
-    return Promise.all(this.subscribers.map(sub => {
+  notifySubscribers(params) {
+    const series = this.subscribers.map(sub => () => {
       const result = sub.perform(params);
-      return result && result.then ? result : Promise.resolve(); // this allows the caller to not return a promise if its not needed
-    }));
+
+      if (!result) {
+        return Promise.resolve();
+      }
+
+      if (isPromise(result)) {
+        return result.then(resultSent => {
+          if (resultSent === true) {
+            params.resultSent = true;
+          }
+        });
+      }
+
+      if (result === true) {
+        params.resultSent = true;
+      }
+
+      return Promise.resolve();
+    });
+
+    return executeSeries(series || [])
+      .then(() => params);
   }
 
-  execute(verb, req, res) {
-    return this.logic[verb.toLowerCase()](req, res);
-  }
+  execute(params) {
+    if (params.resultSent) {
+      return Promise.resolve(params);
+    }
 
-  returnResult(data, verb, req, res) {
-    return this.notifySubscribers(verb, AFTER, req, res, {data})
-      .then(() => {
-        res.json(data);
+    return params.execute()
+      .then(data => {
+        // send result to client
+        params.res.json(data);
+
+        // update params
+        params.resultSent = true;
+        params.data = data;
+        params.stage = AFTER;
+
+        return params;
       });
   }
 
   respond(verb, req, res) {
-    this.notifySubscribers(verb, BEFORE, req, res)
-      .then(() => this.execute(verb, req, res))
-      .then(data => this.returnResult(data, verb, req, res))
+    const params = this.buildParams(verb, req, res);
+
+    this.notifySubscribers(params)
+      .then(this.execute)
+      .then(this.notifySubscribers)
       .catch(err => {
         logError(err);
-        res.status(500).send(err);
+
+        if (!params.resultSent) {
+          res.status(500).send(err);
+        }
       });
   }
 
