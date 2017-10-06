@@ -85,17 +85,13 @@ export default class SchemaRoute {
   }
 
   send(params) {
-    if (params.resultSent) {
-      return Promise.resolve(params);
+    // send result to client
+    if (!params.resultSent) {
+      params.res.json(params.data);
+      params.resultSent = true;
     }
 
-    // send result to client
-    return resolve => {
-      params.res.json(params.data);
-
-      params.resultSent = true;
-      resolve(params);
-    };
+    return params;
   }
 
   respond(verb, req, res) {
