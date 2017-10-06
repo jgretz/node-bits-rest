@@ -77,16 +77,25 @@ export default class SchemaRoute {
 
     return params.execute()
       .then(data => {
-        // send result to client
-        params.res.json(data);
-
-        // update params
-        params.resultSent = true;
         params.data = data;
         params.stage = AFTER;
 
         return params;
       });
+  }
+
+  send(params) {
+    if (params.resultSent) {
+      return Promise.resolve(params);
+    }
+
+    // send result to client
+    return resolve => {
+      params.res.json(params.data);
+
+      params.resultSent = true;
+      resolve(params);
+    };
   }
 
   respond(verb, req, res) {
@@ -95,6 +104,7 @@ export default class SchemaRoute {
     this.notifySubscribers(params)
       .then(this.execute)
       .then(this.notifySubscribers)
+      .then(this.send)
       .catch(err => {
         logError(err);
 
